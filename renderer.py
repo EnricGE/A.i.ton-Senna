@@ -21,14 +21,13 @@ def render_scene(scene: Scene, scale: int = 10, padding: int = 10, my_method: bo
         3
     ))
 
-    track_triangles, invalid, potential = scene.track.create_delaunay_graph()
-    render_triangles(image, invalid, (20, 20, 20), scale, x_offset, y_offset)
+    track_triangles = scene.track.create_delaunay_graph()
     render_triangles(image, track_triangles, (255, 255, 255), scale, x_offset, y_offset)
-    render_triangles(image, potential, (50, 255, 50), scale, x_offset, y_offset)
 
-    # render_lines(image, scene.track.blue_lines, (255, 0, 0), scale, x_offset, y_offset)
-    # render_lines(image, scene.track.yellow_lines, (0, 255, 255), scale, x_offset, y_offset)
-    # render_lines(image, scene.track.orange_lines, (0, 100, 255), scale, x_offset, y_offset)
+    blue_lines, yellow_lines, orange_lines = scene.track.create_boundary()
+    render_lines(image, blue_lines, (255, 0, 0), scale, x_offset, y_offset)
+    render_lines(image, yellow_lines, (0, 255, 255), scale, x_offset, y_offset)
+    render_lines(image, orange_lines, (0, 100, 255), scale, x_offset, y_offset)
 
     render_points(image, scene.track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
     render_points(image, scene.track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)

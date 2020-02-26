@@ -1,6 +1,6 @@
 import json
 import math
-from typing import List
+from typing import List, Dict, Set
 
 from scipy.spatial import Delaunay
 import numpy as np
@@ -47,7 +47,7 @@ class Track:
             two_yellow = triangle_colours.count(CONE_COLOR_YELLOW) == 2 and CONE_COLOR_BLUE in triangle_colours
 
             # if triangle meets criteria then add add to valid triangles
-            if (orange_pair or all_mixed or two_blue or two_yellow):
+            if orange_pair or all_mixed or two_blue or two_yellow:
                 triangles.append(triangle)
                 if cone_a in missed_cones: missed_cones.remove(cone_a)
                 if cone_b in missed_cones: missed_cones.remove(cone_b)
@@ -55,86 +55,58 @@ class Track:
             else:
                 invalid.append(triangle)
 
-        potential_triangles = []
+        return triangles
 
-        # # add missing cones to the graph
-        # for cone in list(missed_cones):
-        #     plausable_triangles = []
-        #     for triangle in delaunay:
-        #         if cone in triangle and get_min_angle_in_triangle(triangle) > 20:
-        #             other_vertecies = list(triangle)
-        #             other_vertecies.remove(cone)
-        #             if other_vertecies[0] not in missed_cones and other_vertecies[1] not in missed_cones:
-        #                 for valid in triangles:
-        #                     has_both = other_vertecies[0] in valid and other_vertecies[1] in valid
-        #                     if has_both: plausable_triangles.append(triangle)
-        #             else:
-        #                 plausable_triangles.append(triangle)
-        #
-        #     triangle = get_best_triangle(cone, missed_cones, plausable_triangles)
-        #     if triangle is not None:
-        #         potential_triangles.append(triangle)
+    def create_boundary(self):
+        triangles = self.create_delaunay_graph()
 
-        return triangles, invalid, potential_triangles
+        blue_boundaries = []
+        yellow_boundaries = []
+        orange_boundaries = []
 
+        track_graph: Dict[Cone: Set[Cone]] = {}
+        for triangle in triangles:
+            for i in range(len(triangle)):
+                if triangle[i] not in track_graph:
+                    track_graph[triangle[i]] = set()
+                track_graph[triangle[i]].add(triangle[i - 1])
+                track_graph[triangle[i]].add(triangle[i - 2])
 
-def get_best_triangle(cone: Cone, missed_cones, potential_triangles: List[List[Cone]]):
-    heuristic_to_triangle = []
-    count = 0
-    for triangle in potential_triangles:
+        for cone in track_graph:
+            if cone.color == CONE_COLOR_BLUE:
+                for connection in track_graph[cone]:
+                    if connection.color == CONE_COLOR_BLUE:
+                        blue_boundaries.append(Line(cone.point, connection.point))
 
-        count += 1
-        triangle_vertices = [vertex for vertex in triangle if cone.color == vertex.color and vertex is not cone]
-        if len(triangle_vertices) >= 2:
-            for i in range(len(triangle_vertices) - 1):
-                triangle = [cone, triangle_vertices[i], triangle_vertices[i + 1]]
+            if cone.color == CONE_COLOR_YELLOW:
+                for connection in track_graph[cone]:
+                    if connection.color == CONE_COLOR_YELLOW:
+                        yellow_boundaries.append(Line(cone.point, connection.point))
 
-                angle = abs(100 - math.degrees(
-                    find_angle(triangle_vertices[i], cone, triangle_vertices[i + 1])
-                ))
-                size = distance(cone.point, triangle_vertices[i].point) ** 1.6 + \
-                       distance(cone.point, triangle_vertices[i + 1].point) ** 1.6
-                heuristic = angle + 1.5 * size
+            if cone.color == CONE_COLOR_BIG_ORANGE:
+                connected_blue_cones = []
+                connected_yellow_cones = []
+                for connection in track_graph[cone]:
+                    if connection.color == CONE_COLOR_YELLOW: connected_yellow_cones.append(connection)
+                    if connection.color == CONE_COLOR_BLUE: connected_blue_cones.append(connection)
 
-                if triangle_vertices[i] not in missed_cones or triangle_vertices[i+1] not in missed_cones:
-                    heuristic -= 10
+                    if len(connected_yellow_cones) >= 2 and len(connected_blue_cones) < 2:
+                        orange_boundaries.append(Line(connected_yellow_cones[0].point, cone.point))
+                        orange_boundaries.append(Line(connected_yellow_cones[1].point, cone.point))
 
-                heuristic_to_triangle.append({
-                    "heuristic": heuristic,
-                    "triangle": triangle
-                })
+                    elif len(connected_blue_cones) >= 2 and len(connected_yellow_cones) < 2:
+                        orange_boundaries.append(Line(connected_blue_cones[0].point, cone.point))
+                        orange_boundaries.append(Line(connected_blue_cones[1].point, cone.point))
 
-    lowest_heuristic, triangle = math.inf, None
-    for heuristic in heuristic_to_triangle:
-        if heuristic["heuristic"] != -1 and heuristic["heuristic"] < lowest_heuristic:
-            lowest_heuristic = heuristic["heuristic"]
-            triangle = heuristic["triangle"]
-    return triangle
+                    else:
+                        print("here")
+
+        return blue_boundaries, yellow_boundaries, orange_boundaries
+
 
 
 def distance(a: Point, b: Point):
     return math.hypot(a.x - b.x, a.y - b.y)
-
-
-def find_angle(a: Cone, b: Cone, c: Cone):
-    angle = (math.atan2(c.point.y - b.point.y, c.point.x - b.point.x) - math.atan2(a.point.y - b.point.y, a.point.x - b.point.x))
-    while angle > (2 * math.pi): angle -= (2 * math.pi)
-    while angle < 0: angle += (2 * math.pi)
-    if angle > math.pi: angle = 2 * math.pi - angle
-    return angle
-
-
-def get_min_angle_in_triangle(triangle: List[Cone]):
-    """
-    Returns the minimum angle of a vertex in the provided triangle in degrees
-    :param triangle: The triangle -> [cone, cone, cone]
-    :return: min angle of each vertex in degrees -> not radius
-    """
-    min_angle = 180
-    min_angle = min(min_angle, find_angle(triangle[0], triangle[1], triangle[2]))
-    min_angle = min(min_angle, find_angle(triangle[1], triangle[2], triangle[0]))
-    min_angle = min(min_angle, find_angle(triangle[2], triangle[0], triangle[1]))
-    return math.degrees(min_angle)
 
 
 def merge_big_orange_cones(orange_cones):
