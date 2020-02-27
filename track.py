@@ -84,29 +84,26 @@ class Track:
                         yellow_boundaries.append(Line(cone.point, connection.point))
 
             if cone.color == CONE_COLOR_BIG_ORANGE:
-                connected_blue_cones = []
-                connected_yellow_cones = []
-                for connection in track_graph[cone]:
-                    if connection.color == CONE_COLOR_YELLOW: connected_yellow_cones.append(connection)
-                    if connection.color == CONE_COLOR_BLUE: connected_blue_cones.append(connection)
+                cones = [{
+                        "cone": connection,
+                        "length": connection.point.distance(cone.point)
+                    } for connection in track_graph[cone]]
+                cones = sorted(cones, key=lambda item: item['length'])
+                closest_blue, closest_yellow = [], []
+                for closest_cone in cones:
+                    if closest_cone["cone"].color == CONE_COLOR_YELLOW: closest_yellow.append(closest_cone["cone"])
+                    if closest_cone["cone"].color == CONE_COLOR_BLUE: closest_blue.append(closest_cone["cone"])
 
-                    if len(connected_yellow_cones) >= 2 and len(connected_blue_cones) < 2:
-                        orange_boundaries.append(Line(connected_yellow_cones[0].point, cone.point))
-                        orange_boundaries.append(Line(connected_yellow_cones[1].point, cone.point))
-
-                    elif len(connected_blue_cones) >= 2 and len(connected_yellow_cones) < 2:
-                        orange_boundaries.append(Line(connected_blue_cones[0].point, cone.point))
-                        orange_boundaries.append(Line(connected_blue_cones[1].point, cone.point))
-
-                    else:
-                        print("here")
+                    if len(closest_blue) >= 2:
+                        orange_boundaries.append(Line(closest_blue[0].point, cone.point))
+                        orange_boundaries.append(Line(closest_blue[1].point, cone.point))
+                        break
+                    if len(closest_yellow) >= 2:
+                        orange_boundaries.append(Line(closest_yellow[0].point, cone.point))
+                        orange_boundaries.append(Line(closest_yellow[1].point, cone.point))
+                        break
 
         return blue_boundaries, yellow_boundaries, orange_boundaries
-
-
-
-def distance(a: Point, b: Point):
-    return math.hypot(a.x - b.x, a.y - b.y)
 
 
 def merge_big_orange_cones(orange_cones):
@@ -114,7 +111,7 @@ def merge_big_orange_cones(orange_cones):
     for cone in orange_cones:
         too_close = False
         for merged_cone in merged_orange_cones:
-            too_close = too_close or distance(cone.point, merged_cone.point) < 2.75
+            too_close = too_close or cone.point.distance(merged_cone.point) < 2.75
         if not too_close:
             merged_orange_cones.append(cone)
     return merged_orange_cones
