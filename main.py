@@ -1,9 +1,9 @@
+from car import Car
 from scene import Scene
-from simulator.simulator import Simulator
-from track import Track
+from carla.simulator import Simulator
 
-track = Track("tracks/brands_hatch.json")
-scene = Scene(track)
+scene = Scene(track_path="tracks/brands_hatch.json")
+scene.add_car(Car())
 
 simulator = Simulator()
 simulator.set_scene(scene)
