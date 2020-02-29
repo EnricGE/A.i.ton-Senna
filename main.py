@@ -1,11 +1,9 @@
-import os
-
 from scene import Scene
-import renderer
+from simulator.simulator import Simulator
+from track import Track
 
-paths = os.listdir("tracks/")
-for path in paths:
-    scene: Scene = Scene("tracks/" + path)
+track = Track("tracks/brands_hatch.json")
+scene = Scene(track)
 
-    # renderer.render_scene(scene, my_method=False)
-    renderer.render_scene(scene)
+simulator = Simulator()
+simulator.set_scene(scene)
