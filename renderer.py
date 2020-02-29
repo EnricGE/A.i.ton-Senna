@@ -3,12 +3,10 @@ import math
 import cv2
 import numpy as np
 
-from scene import Scene
 
-
-def render_scene(scene: Scene, scale: int = 10, padding: int = 10, my_method: bool = True):
+def render_scene(track, scale: int = 10, padding: int = 10):
     min_x, min_y, max_x, max_y = math.inf, math.inf, -math.inf, -math.inf
-    for cone in (scene.track.blue_cones + scene.track.yellow_cones + scene.track.orange_cones + scene.track.big_orange_cones):
+    for cone in (track.blue_cones + track.yellow_cones + track.orange_cones + track.big_orange_cones):
         min_x = min(min_x, cone.point.x)
         min_y = min(min_y, cone.point.y)
         max_x = max(max_x, cone.point.x)
@@ -21,20 +19,19 @@ def render_scene(scene: Scene, scale: int = 10, padding: int = 10, my_method: bo
         3
     ))
 
-    track_triangles = scene.track.create_delaunay_graph()
+    track_triangles = track.create_delaunay_graph()
     render_triangles(image, track_triangles, (255, 255, 255), scale, x_offset, y_offset)
 
-    blue_lines, yellow_lines, orange_lines = scene.track.create_boundary()
+    blue_lines, yellow_lines, orange_lines = track.create_boundary()
     render_lines(image, blue_lines, (255, 0, 0), scale, x_offset, y_offset)
     render_lines(image, yellow_lines, (0, 255, 255), scale, x_offset, y_offset)
     render_lines(image, orange_lines, (0, 100, 255), scale, x_offset, y_offset)
 
-    render_points(image, scene.track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
-    render_points(image, scene.track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)
-    render_points(image, scene.track.big_orange_cones, (0, 100, 255), scale, 4, x_offset, y_offset)
+    render_points(image, track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
+    render_points(image, track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)
+    render_points(image, track.big_orange_cones, (0, 100, 255), scale, 4, x_offset, y_offset)
 
-    cv2.imshow("", image / 255)
-    cv2.waitKey(0)
+    return image
 
 
 def render_points(image, points, colour, scale, radius, offset_x, offset_y):
