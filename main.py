@@ -20,9 +20,8 @@ scene.add_car(car)
 
 
 def run_rl():
-    for i in range(100):
-        cv2.imshow("", renderer.render_scene(scene) / 255)
-        cv2.waitKey(0)
+    cv2.imshow("", renderer.render_scene(scene) / 255)
+    cv2.waitKey(0)
 
 
 def run_carla_simulator():
