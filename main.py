@@ -1,15 +1,14 @@
-import time
 from threading import Thread
 
 import cv2
 
-import renderer
-from car import Car
-from scene import Scene
+from simulator import renderer
+from simulator.car import Car
+from simulator.scene import Scene
 from simulator.coneTest import ConeTest
 
 # Set up the basic scene
-from track import Track
+from simulator.track import Track
 
 
 track = Track("tracks/brands_hatch.json")

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from car import Car
-from track import Track
+from simulator.car import Car
+from simulator.track import Track
 
 
 class Scene:

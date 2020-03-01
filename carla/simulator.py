@@ -1,6 +1,6 @@
 import sys
 
-from scene import Scene
+from simulator.scene import Scene
 
 try:
     sys.path.append('simulator\\dist\\carla.egg')
@@ -9,10 +9,10 @@ except IndexError:
 import carla
 
 
-class ConeTest:
+class Simulator:
     def __init__(self):
         self.__simulator = carla.Client("127.0.0.1", 2000)
-        self.__simulator.set_timeout(5.0)
+        self.__simulator.set_timeout(2.0)
         self.scene = None
 
     def set_scene(self, scene: Scene):
@@ -46,7 +46,11 @@ class ConeTest:
 
         try:
             world = self.__simulator.get_world()
-            #blueprint_library = world.get_blueprint_library()
+            blueprints = world.get_blueprint_library().filter('vehicle.*')
+            if args.safe:
+                blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 3]
+                blueprints = [x for x in blueprints if not x.id.endswith('isetta')]
+                blueprints = [x for x in blueprints if not x.id.endswith('carlacola')]
             spawn_points = world.get_map().get_spawn_points()
             number_of_spawn_points = len(spawn_points)
             if args.number_of_vehicles < number_of_spawn_points:
@@ -63,20 +67,18 @@ class ConeTest:
             for n, transform in enumerate(spawn_points):
                 if n >= args.number_of_vehicles:
                     break
-                blueprints = world.get_blueprint_library().filter('static.prop.constructioncone')
-                print(random.choice(blueprints))
                 blueprint = random.choice(blueprints)
-                #if blueprint.has_attribute('color'):
-                #    color = random.choice(blueprint.get_attribute('color').recommended_values)
-                #    blueprint.set_attribute('color', color)
-                #blueprint.set_attribute('role_name', 'autopilot')
-                batch.append(SpawnActor(blueprint, transform))
+                if blueprint.has_attribute('color'):
+                    color = random.choice(blueprint.get_attribute('color').recommended_values)
+                    blueprint.set_attribute('color', color)
+                blueprint.set_attribute('role_name', 'autopilot')
+                batch.append(SpawnActor(blueprint, transform).then(SetAutopilot(FutureActor, True)))
             for response in self.__simulator.apply_batch_sync(batch):
                 if response.error:
                     logging.error(response.error)
                 else:
                     actor_list.append(response.actor_id)
-            print('spawned %d cones, press Ctrl+C to exit.' % len(actor_list))
+            print('spawned %d vehicles, press Ctrl+C to exit.' % len(actor_list))
             while True:
                 world.wait_for_tick()
         finally:

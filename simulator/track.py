@@ -1,11 +1,10 @@
 import json
-import math
-from typing import List, Dict, Set
+from typing import Dict, Set
 
 from scipy.spatial import Delaunay
 import numpy as np
 
-from objects import *
+from simulator.objects import *
 
 
 class Track:

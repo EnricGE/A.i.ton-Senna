@@ -1,4 +1,4 @@
-from objects import Point
+from simulator.objects import Point
 
 
 class Car:

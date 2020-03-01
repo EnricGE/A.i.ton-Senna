@@ -3,10 +3,8 @@ import math
 import cv2
 import numpy as np
 
-from car import Car
-from objects import Point
-from scene import Scene
-
+from simulator.car import Car
+from simulator.objects import Point
 
 RENDER_CAR_COLOUR = (0, 0, 255)  # red
 
