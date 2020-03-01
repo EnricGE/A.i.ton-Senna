@@ -10,7 +10,7 @@ RENDER_CAR_COLOUR = (0, 0, 255)  # red
 
 
 def render_scene(scene, scale: int = 10, padding: int = 10):
-    min_x, min_y, max_x, max_y = math.inf, math.inf, -math.inf, -math.inf
+    min_x, min_y, max_x, max_y = scene.track.track_bounds
     for cone in (scene.track.blue_cones + scene.track.yellow_cones + scene.track.orange_cones + scene.track.big_orange_cones):
         min_x = min(min_x, cone.point.x)
         min_y = min(min_y, cone.point.y)
@@ -35,6 +35,9 @@ def render_scene(scene, scale: int = 10, padding: int = 10):
     render_points(image, scene.track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
     render_points(image, scene.track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)
     render_points(image, scene.track.big_orange_cones, (0, 100, 255), scale, 4, x_offset, y_offset)
+
+    for pedestrian in scene.pedestrians:
+        render_points(image, [pedestrian], (0, 255, 0), scale, 4, x_offset, y_offset)
 
     for car in scene.cars:
         image = render_car(image, scale, x_offset, y_offset, car)

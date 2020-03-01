@@ -14,7 +14,7 @@ MIN_COOL_DOWN = 4
 class Pedestrian:
     def __init__(self, pos: Point, has_ai=False):
         self.has_ai = has_ai
-        self.pos = pos
+        self.point = pos
 
         self.__target_pos = pos
         self.__target_point_cooldown = 0

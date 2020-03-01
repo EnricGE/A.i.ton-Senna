@@ -17,6 +17,7 @@ car = Car(pos=track.car_pos)
 scene = Scene()
 scene.set_track(track)
 scene.add_car(car)
+scene.gen_pedestrians(200)
 
 
 def run_rl():

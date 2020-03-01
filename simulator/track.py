@@ -22,15 +22,18 @@ class Track:
             self.car_pos = Point(x=track["car_pos"]["x"], y=track["car_pos"]["y"])
             self.car_orientation = track["car_orientation"]
 
-    def __get_track_bounds(self):
+            self.track_bounds = self.get_track_bounds()
+
+    def get_track_bounds(self):
         min_x, min_y, max_x, max_y = math.inf, math.inf, -math.inf, -math.inf
         for cone in (
                 self.blue_cones + self.yellow_cones + self.orange_cones + self.big_orange_cones):
-            min_x = min(min_x, cone.point.x)
-            min_y = min(min_y, cone.point.y)
-            max_x = max(max_x, cone.point.x)
-            max_y = max(max_y, cone.point.y)
-        return
+            min_x = int(min(min_x, cone.point.x))
+            min_y = int(min(min_y, cone.point.y))
+            max_x = int(max(max_x, cone.point.x))
+            max_y = int(max(max_y, cone.point.y))
+
+        return (min_x, min_y, max_x, max_y)
 
     def __get_delauny_map(self):
         all_cones = self.blue_cones + self.yellow_cones + self.big_orange_cones
