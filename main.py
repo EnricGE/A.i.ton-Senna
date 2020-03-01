@@ -6,7 +6,7 @@ import cv2
 import renderer
 from car import Car
 from scene import Scene
-from simulator.simulator import Simulator
+from simulator.coneTest import ConeTest
 
 # Set up the basic scene
 from track import Track
@@ -27,7 +27,7 @@ def run_rl():
 
 
 def run_carla_simulator():
-    simulator = Simulator()
+    simulator = ConeTest()
     simulator.set_scene(scene)
 
 
