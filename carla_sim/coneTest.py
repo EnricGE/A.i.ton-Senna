@@ -57,8 +57,6 @@ class ConeTest:
                 args.number_of_vehicles = number_of_spawn_points
             # @todo cannot import these directly.
             SpawnActor = carla.command.SpawnActor
-            SetAutopilot = carla.command.SetAutopilot
-            FutureActor = carla.command.FutureActor
             batch = []
             for n, transform in enumerate(spawn_points):
                 if n >= args.number_of_vehicles:
