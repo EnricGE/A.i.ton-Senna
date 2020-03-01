@@ -38,13 +38,17 @@ class ConeTest:
             # @todo cannot import these directly.
             SpawnActor = carla.command.SpawnActor
             batch = []
-            for n, transform in enumerate(spawn_points):
-                if n >= number_of_vehicles:
-                    break
-                blueprints = world.get_blueprint_library().filter('static.prop.constructioncone')
-                print(random.choice(blueprints))
-                blueprint = random.choice(blueprints)
-                batch.append(SpawnActor(blueprint, transform))
+
+            blueprints = world.get_blueprint_library().filter('static.prop.trafficcone02')
+            blueprint = random.choice(blueprints)
+            for cone in self.scene.track.blue_cones:
+                batch.append(SpawnActor(blueprint, carla.Transform(carla.Location(x=cone.point.x, y=cone.point.y))))
+
+            blueprints = world.get_blueprint_library().filter('static.prop.trafficcone01')
+            blueprint = random.choice(blueprints)
+            for cone in self.scene.track.yellow_cones:
+                batch.append(SpawnActor(blueprint, carla.Transform(carla.Location(x=cone.point.x, y=cone.point.y))))
+
             for response in self.__simulator.apply_batch_sync(batch):
                 if response.error:
                     logging.error(response.error)
