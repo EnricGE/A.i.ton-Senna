@@ -3,7 +3,7 @@ import sys
 from simulator.scene import Scene
 
 try:
-    sys.path.append('carla\\dist\\carla.egg')
+    sys.path.append('carla_sim\\dist\\carla.egg')
 except IndexError:
     pass
 import carla

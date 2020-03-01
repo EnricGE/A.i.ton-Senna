@@ -5,7 +5,7 @@ import cv2
 from simulator import renderer
 from simulator.car import Car
 from simulator.scene import Scene
-from simulator.coneTest import ConeTest
+from carla_sim.coneTest import ConeTest
 
 # Set up the basic scene
 from simulator.track import Track

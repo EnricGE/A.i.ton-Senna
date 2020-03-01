@@ -29,4 +29,8 @@ class Pedestrian:
     def new_target_point(self) -> Point:
         angle = random.random()
         radius = random.random() * (MAX_TARGET_POINT_DISTANCE - MIN_TARGET_POINT_DISTANCE) + MIN_TARGET_POINT_DISTANCE
-        return Point(0, 0)
+
+        return Point(
+            radius * math.cos(angle) + self.pos.x,
+            radius * math.sin(angle) + self.pos.y
+        )
