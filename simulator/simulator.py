@@ -48,7 +48,7 @@ class Simulator:
             world = self.__simulator.get_world()
             blueprints = world.get_blueprint_library().filter('vehicle.*')
             if args.safe:
-                blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 4]
+                blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 3]
                 blueprints = [x for x in blueprints if not x.id.endswith('isetta')]
                 blueprints = [x for x in blueprints if not x.id.endswith('carlacola')]
             spawn_points = world.get_map().get_spawn_points()

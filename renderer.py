@@ -3,10 +3,17 @@ import math
 import cv2
 import numpy as np
 
+from car import Car
+from objects import Point
+from scene import Scene
 
-def render_scene(track, scale: int = 10, padding: int = 10):
+
+RENDER_CAR_COLOUR = (0, 0, 255)  # red
+
+
+def render_scene(scene, scale: int = 10, padding: int = 10):
     min_x, min_y, max_x, max_y = math.inf, math.inf, -math.inf, -math.inf
-    for cone in (track.blue_cones + track.yellow_cones + track.orange_cones + track.big_orange_cones):
+    for cone in (scene.track.blue_cones + scene.track.yellow_cones + scene.track.orange_cones + scene.track.big_orange_cones):
         min_x = min(min_x, cone.point.x)
         min_y = min(min_y, cone.point.y)
         max_x = max(max_x, cone.point.x)
@@ -19,18 +26,20 @@ def render_scene(track, scale: int = 10, padding: int = 10):
         3
     ))
 
-    track_triangles = track.create_delaunay_graph()
+    track_triangles = scene.track.create_delaunay_graph()
     render_triangles(image, track_triangles, (255, 255, 255), scale, x_offset, y_offset)
 
-    blue_lines, yellow_lines, orange_lines = track.create_boundary()
+    blue_lines, yellow_lines, orange_lines = scene.track.create_boundary()
     render_lines(image, blue_lines, (255, 0, 0), scale, x_offset, y_offset)
     render_lines(image, yellow_lines, (0, 255, 255), scale, x_offset, y_offset)
     render_lines(image, orange_lines, (0, 100, 255), scale, x_offset, y_offset)
 
-    render_points(image, track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
-    render_points(image, track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)
-    render_points(image, track.big_orange_cones, (0, 100, 255), scale, 4, x_offset, y_offset)
+    render_points(image, scene.track.blue_cones, (255, 0, 0), scale, 4, x_offset, y_offset)
+    render_points(image, scene.track.yellow_cones, (0, 255, 255), scale, 4, x_offset, y_offset)
+    render_points(image, scene.track.big_orange_cones, (0, 100, 255), scale, 4, x_offset, y_offset)
 
+    for car in scene.cars:
+        image = render_car(image, scale, x_offset, y_offset, car)
     return image
 
 
@@ -76,3 +85,25 @@ def render_lines(image, lines, colour, scale, x_offset, y_offset):
             2
         )
     return image
+
+
+def render_car(image, scale, offset_x, offset_y, car: Car):
+    tl = Point(-car.width / 2, car.length / 2)
+    tr = Point(car.width / 2, car.length / 2)
+    bl = Point(-car.width / 2, -car.length / 2)
+    br = Point(car.width / 2, -car.length / 2)
+    tl.rotate_around(Point(0, 0), car.orientation)
+    tr.rotate_around(Point(0, 0), car.orientation)
+    bl.rotate_around(Point(0, 0), car.orientation)
+    br.rotate_around(Point(0, 0), car.orientation)
+
+    line_type = 8
+    # Create some points
+    ppt = np.array([[(tl.x + car.pos.x) * scale + offset_x, (tl.y + car.pos.y) * scale + offset_y],
+                    [(tr.x + car.pos.x) * scale + offset_x, (tr.y + car.pos.y) * scale + offset_y],
+                    [(br.x + car.pos.x) * scale + offset_x, (br.y + car.pos.y) * scale + offset_y],
+                    [(bl.x + car.pos.x) * scale + offset_x, (bl.y + car.pos.y) * scale + offset_y]], np.int32)
+    ppt = ppt.reshape((-1, 1, 2))
+    image = cv2.fillPoly(image, [ppt], RENDER_CAR_COLOUR, 0)
+    return image
+

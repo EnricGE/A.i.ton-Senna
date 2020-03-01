@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from car import Car
 from track import Track
-import renderer
 
 
 class Scene:
@@ -21,6 +20,3 @@ class Scene:
 
     def add_car(self, car: Car):
         self.cars.append(car)
-
-    def render_track(self):
-        return renderer.render_scene(self.track)

@@ -20,6 +20,8 @@ class Track:
             self.big_orange_cones = merge_big_orange_cones(
                 [Cone(Point(cone["x"], cone["y"]), CONE_COLOR_BIG_ORANGE) for cone in track["big_orange_cones"]]
             )
+            self.car_pos = Point(x=track["car_pos"]["x"], y=track["car_pos"]["y"])
+            self.car_orientation = track["car_orientation"]
 
     def __get_delauny_map(self):
         all_cones = self.blue_cones + self.yellow_cones + self.big_orange_cones
