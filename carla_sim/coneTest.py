@@ -41,7 +41,7 @@ class ConeTest:
 
             blueprints = world.get_blueprint_library().filter('static.prop.trafficcone02') #grab single-item list of blueprints
             blueprint = random.choice(blueprints) #extract single-item from list
-            for cone in self.scene.track.blue_cones: for #for each blue cone in track,
+            for cone in self.scene.track.blue_cones: #for each blue cone in track,
                 batch.append(SpawnActor(blueprint, carla.Transform(carla.Location(x=cone.point.x, y=cone.point.y)))) #spawn cone02 at that location
 
             blueprints = world.get_blueprint_library().filter('static.prop.trafficcone01')
